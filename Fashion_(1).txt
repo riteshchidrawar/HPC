@@ -1,0 +1,92 @@
+
+===== MARKDOWN CELL =====
+
+# Fashion MNIST Classification
+A CNN-based image classifier using Keras/TensorFlow on the Fashion-MNIST dataset.
+
+===== CODE CELL =====
+
+import numpy as np
+import matplotlib.pyplot as plt
+
+import tensorflow as tf
+from tensorflow.keras import layers, models
+
+===== MARKDOWN CELL =====
+
+## Load & Preprocess Data
+
+===== CODE CELL =====
+
+(train_images, train_labels), (test_images, test_labels) = tf.keras.datasets.fashion_mnist.load_data()
+
+train_images = train_images / 255.0
+test_images  = test_images  / 255.0
+
+train_images = train_images.reshape(-1, 28, 28, 1)
+test_images  = test_images.reshape(-1,  28, 28, 1)
+
+print('Train shape:', train_images.shape)
+print('Test  shape:', test_images.shape)
+
+===== MARKDOWN CELL =====
+
+## Build CNN Model
+
+===== CODE CELL =====
+
+model = models.Sequential([
+    tf.keras.Input(shape=(28, 28, 1)),
+    layers.Conv2D(32, (3,3), activation='relu'),
+    layers.MaxPooling2D((2,2)),
+
+    layers.Conv2D(64, (3,3), activation='relu'),
+    layers.MaxPooling2D((2,2)),
+
+    layers.Flatten(),
+    layers.Dense(64,  activation='relu'),
+    layers.Dense(10,  activation='softmax')
+])
+
+model.compile(
+    optimizer='adam',
+    loss='sparse_categorical_crossentropy',
+    metrics=['accuracy']
+)
+
+model.summary()
+
+===== MARKDOWN CELL =====
+
+## Train Model
+
+===== CODE CELL =====
+
+history = model.fit(
+    train_images, train_labels,
+    epochs=10,
+    validation_data=(test_images, test_labels)
+)
+
+===== MARKDOWN CELL =====
+
+## Evaluate & Predict
+
+===== CODE CELL =====
+
+test_loss, test_acc = model.evaluate(test_images, test_labels)
+print('Test Accuracy:', test_acc)
+
+predictions = model.predict(test_images)
+print('Predicted:', np.argmax(predictions[0]))
+print('Actual   :', test_labels[0])
+
+===== MARKDOWN CELL =====
+
+## Predict a Single Image
+
+===== CODE CELL =====
+
+img  = test_images[0].reshape(1, 28, 28, 1)
+pred = model.predict(img)
+print('Predicted class:', np.argmax(pred))

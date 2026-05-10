@@ -1,0 +1,101 @@
+
+===== CODE CELL =====
+
+%%writefile minmax.cpp
+
+#include <iostream>
+#include <omp.h>
+
+using namespace std;
+
+// Function to find minimum value
+int minval(int arr[], int n)
+{
+    int min_value = arr[0];
+
+    #pragma omp parallel for reduction(min:min_value)
+    for(int i = 0; i < n; i++)
+    {
+        if(arr[i] < min_value)
+        {
+            min_value = arr[i];
+        }
+    }
+
+    return min_value;
+}
+
+// Function to find maximum value
+int maxval(int arr[], int n)
+{
+    int max_value = arr[0];
+
+    #pragma omp parallel for reduction(max:max_value)
+    for(int i = 0; i < n; i++)
+    {
+        if(arr[i] > max_value)
+        {
+            max_value = arr[i];
+        }
+    }
+
+    return max_value;
+}
+
+// Function to calculate sum
+int sum(int arr[], int n)
+{
+    int total = 0;
+
+    #pragma omp parallel for reduction(+:total)
+    for(int i = 0; i < n; i++)
+    {
+        total += arr[i];
+    }
+
+    return total;
+}
+
+// Function to calculate average
+double average(int arr[], int n)
+{
+    return (double)sum(arr, n) / n;
+}
+
+int main()
+{
+    int n;
+
+    cout << "Enter number of elements: ";
+    cin >> n;
+
+    int arr[n];
+
+    cout << "Enter array elements:\n";
+
+    for(int i = 0; i < n; i++)
+    {
+        cin >> arr[i];
+    }
+
+    cout << "\nArray Elements: ";
+    for(int i = 0; i < n; i++)
+    {
+        cout << arr[i] << " ";
+    }
+
+    cout << "\n\nMinimum value: " << minval(arr, n);
+    cout << "\nMaximum value: " << maxval(arr, n);
+    cout << "\nSum: " << sum(arr, n);
+    cout << "\nAverage: " << average(arr, n);
+
+    return 0;
+}
+
+
+
+
+===== CODE CELL =====
+
+!g++ minmax.cpp -fopenmp -o minmax
+!./minmax
